@@ -19,6 +19,13 @@ const (
 	twseAPIGetStockInfo = "getStockInfo.jsp"
 )
 
+// TwseStkHdl : 證交所資訊網站連線物件
+type TwseStkHdl struct {
+	Client  *http.Client
+	Timeout time.Duration
+	cookies []*http.Cookie
+}
+
 //Stock : TWSE 商品基本資料結構
 type Stock struct {
 	Exchange   string `json:"ex"`
@@ -95,13 +102,6 @@ type StockInfoResponse struct {
 	UserDelay  string      `json:"userDelay"`
 }
 
-// TwseStkHdl : 證交所資訊網站連線物件
-type TwseStkHdl struct {
-	Client  *http.Client
-	Timeout time.Duration
-	cookies []*http.Cookie
-}
-
 // Init : 初始化 http Client
 func (hdl *TwseStkHdl) Init(TimeoutSec time.Duration) {
 	hdl.Client = &http.Client{
@@ -116,6 +116,7 @@ func (hdl *TwseStkHdl) getCookie() (err error) {
 	url = twseMISWeb
 	var request *http.Request
 	var response *http.Response
+
 	request, err = http.NewRequest("GET", url, nil)
 	if err != nil {
 		return
@@ -127,6 +128,7 @@ func (hdl *TwseStkHdl) getCookie() (err error) {
 	}
 	defer response.Body.Close()
 	hdl.cookies = response.Cookies()
+
 	return
 }
 
@@ -169,10 +171,14 @@ func (hdl *TwseStkHdl) QryStkInfo(sym string) (rep StockInfoResponse, err error)
 	var request *http.Request
 	var response *http.Response
 
+	hdl.Client = &http.Client{
+		Timeout: time.Second * 5,
+	}
 	// get cookie
 	hdl.getCookie()
 
 	url = fmt.Sprintf("%s/%s?ex_ch=%s&json=1", twseAPIBase, twseAPIGetStockInfo, sym)
+	fmt.Printf("url : %s\n", url)
 	request, err = http.NewRequest("GET", url, nil)
 	if err != nil {
 		return
