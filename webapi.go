@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"time"
 )
@@ -135,6 +136,15 @@ func (hdl *TwseStkHdl) getCookie() (err error) {
 // Public function
 // --------------------------------------------------------------------
 
+//IsTimeout : http 請求是否超時
+func (hdl *TwseStkHdl) IsTimeout(err error) bool {
+	neterr := err.(net.Error)
+	if neterr != nil {
+		return neterr.Timeout()
+	}
+	return false
+}
+
 /*QryStock : 查詢 商品資料
   http://mis.twse.com.tw/stock/api/getStock.jsp?ch=2330.tw&json=1
 */
@@ -171,11 +181,11 @@ func (hdl *TwseStkHdl) QryStkInfo(sym string) (rep StockInfoResponse, err error)
 	var request *http.Request
 	var response *http.Response
 
-	hdl.Client = &http.Client{
-		Timeout: time.Second * 5,
-	}
 	// get cookie
-	hdl.getCookie()
+	err = hdl.getCookie()
+	if err != nil {
+		return
+	}
 
 	url = fmt.Sprintf("%s/%s?ex_ch=%s&json=1", twseAPIBase, twseAPIGetStockInfo, sym)
 	fmt.Printf("url : %s\n", url)
