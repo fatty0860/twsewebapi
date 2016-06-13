@@ -8,9 +8,8 @@ import (
 )
 
 func work(data interface{}) {
-
 	o, _ := data.(twsewebapi.StockInfoResponse)
-	fmt.Printf("----------------------------\n")
+	fmt.Printf("---------------------------- \n")
 	for _, stk := range o.Info {
 		bidpx := stk.Best5BidPx[:strings.IndexAny(stk.Best5BidPx, "_")]
 		askpx := stk.Best5AskPx[:strings.IndexAny(stk.Best5AskPx, "_")]
@@ -63,6 +62,7 @@ func main() {
 				fmt.Printf("Reg : %s\n", stk)
 			}
 		default:
+			fmt.Printf("DEBUG - [%s]\n", cmd)
 			src.AddSymbol(cmd)
 		}
 		//time.Sleep(time.Second * 10)

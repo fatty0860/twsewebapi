@@ -213,7 +213,7 @@ func (hdl *TwseStkHdl) QryStkInfo(sym string) (rep StockInfoResponse, err error)
 func (hdl *TwseStkHdl) QryStkInfoBatch(syms []string) (rep StockInfoResponse, err error) {
 	var sym string
 	for _, s := range syms {
-		sym += s + "|"
+		sym += (s + "|")
 	}
 	rep, err = hdl.QryStkInfo(sym)
 	return
